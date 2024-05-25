@@ -7,13 +7,8 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/woyteck/toll-calculator/types"
 )
-
-type OBUData struct {
-	OBUID int     `json:"obuID"`
-	Lat   float64 `json:"lat"`
-	Long  float64 `json:"long"`
-}
 
 const wsEndpoint = "ws://127.0.0.1:30000/ws"
 
@@ -28,7 +23,7 @@ func main() {
 
 	for {
 		for i := 0; i < len(obuIDS); i++ {
-			data := OBUData{
+			data := types.OBUData{
 				OBUID: obuIDS[i],
 				Lat:   genCoord(),
 				Long:  genCoord(),

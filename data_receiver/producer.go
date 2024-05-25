@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/woyteck/toll-calculator/types"
 )
 
 type DataProducer interface {
-	ProduceData(OBUData) error
+	ProduceData(types.OBUData) error
 }
 
 type KafkaProducer struct {
@@ -41,7 +42,7 @@ func NewKafkaProducer(topic string) (DataProducer, error) {
 	}, nil
 }
 
-func (p *KafkaProducer) ProduceData(data OBUData) error {
+func (p *KafkaProducer) ProduceData(data types.OBUData) error {
 	b, err := json.Marshal(data)
 	if err != nil {
 		return err

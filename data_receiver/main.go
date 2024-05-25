@@ -6,13 +6,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+	"github.com/woyteck/toll-calculator/types"
 )
-
-type OBUData struct {
-	OBUID int     `json:"obuID"`
-	Lat   float64 `json:"lat"`
-	Long  float64 `json:"long"`
-}
 
 func main() {
 	recv, err := NewDataReceiver()
@@ -24,7 +19,7 @@ func main() {
 }
 
 type DataReceiver struct {
-	msgch chan OBUData
+	msgch chan types.OBUData
 	conn  *websocket.Conn
 	prod  DataProducer
 }
@@ -43,12 +38,12 @@ func NewDataReceiver() (*DataReceiver, error) {
 	p = NewLogMiddleware(p)
 
 	return &DataReceiver{
-		msgch: make(chan OBUData, 128),
+		msgch: make(chan types.OBUData, 128),
 		prod:  p,
 	}, nil
 }
 
-func (dr *DataReceiver) produceData(data OBUData) error {
+func (dr *DataReceiver) produceData(data types.OBUData) error {
 	return dr.prod.ProduceData(data)
 }
 
@@ -67,7 +62,7 @@ func (dr *DataReceiver) handleWS(w http.ResponseWriter, r *http.Request) {
 func (dr *DataReceiver) wsReceiveLoop() {
 	fmt.Println("New OBU connected")
 	for {
-		var data OBUData
+		var data types.OBUData
 		if err := dr.conn.ReadJSON(&data); err != nil {
 			log.Println("read error:", err)
 			continue

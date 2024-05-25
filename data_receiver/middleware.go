@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/woyteck/toll-calculator/types"
 )
 
 type LogMiddleware struct {
@@ -16,7 +17,7 @@ func NewLogMiddleware(next DataProducer) *LogMiddleware {
 	}
 }
 
-func (l *LogMiddleware) ProduceData(data OBUData) error {
+func (l *LogMiddleware) ProduceData(data types.OBUData) error {
 	defer func(start time.Time) {
 		logrus.WithFields(logrus.Fields{
 			"obuID": data.OBUID,
