@@ -14,8 +14,6 @@ type OBUData struct {
 	Long  float64 `json:"long"`
 }
 
-var kafkaTopic = "obudata"
-
 func main() {
 	recv, err := NewDataReceiver()
 	if err != nil {
@@ -32,10 +30,17 @@ type DataReceiver struct {
 }
 
 func NewDataReceiver() (*DataReceiver, error) {
-	p, err := NewKafkaProducer()
+	var (
+		p          DataProducer
+		err        error
+		kafkaTopic = "obudata"
+	)
+	p, err = NewKafkaProducer(kafkaTopic)
 	if err != nil {
 		return nil, err
 	}
+
+	p = NewLogMiddleware(p)
 
 	return &DataReceiver{
 		msgch: make(chan OBUData, 128),
