@@ -14,4 +14,4 @@ agg:
 	@go build -C aggregator -o ../bin/agg .
 	@./bin/agg
 
-.PHONY: obu, aggregator
+.PHONY: obu
