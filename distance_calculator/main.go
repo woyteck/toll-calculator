@@ -9,8 +9,6 @@ import (
 const kafkaTopic = "obudata"
 const aggregatorEndpoint = "http://localhost:3000/aggregate"
 
-// Transport (HTTP, GRPC, Kafka) -> attach business logic to this transport
-
 func main() {
 	var (
 		err error
@@ -20,7 +18,13 @@ func main() {
 	svc = NewCalculdatorService()
 	svc = NewLogMiddleware(svc)
 
-	kafkaConsumer, err := NewKafkaConsumer(kafkaTopic, svc, client.NewClient(aggregatorEndpoint))
+	// httpClient := client.NewHTTPClient(aggregatorEndpoint)
+	grpcClient, err := client.NewGRPCClient(aggregatorEndpoint)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	kafkaConsumer, err := NewKafkaConsumer(kafkaTopic, svc, grpcClient)
 	if err != nil {
 		log.Fatal(err)
 	}
