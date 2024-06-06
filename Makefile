@@ -1,3 +1,7 @@
+gate:
+	@go build -C gateway -o ../bin/gateway .
+	@./bin/gateway
+
 obu:
 	@go build -C obu -o ../bin/obu .
 	@./bin/obu
@@ -17,4 +21,4 @@ agg:
 proto:
 	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative types/ptypes.proto
 
-.PHONY: obu
+.PHONY: obu, gateway
