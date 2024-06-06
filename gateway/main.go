@@ -39,7 +39,7 @@ func newInvoiceHandler(c client.Client) *InvoiceHandler {
 }
 
 func (h *InvoiceHandler) handleGetInvoice(w http.ResponseWriter, r *http.Request) error {
-	invoice, err := h.client.GetInvoice(context.Background(), 846487)
+	invoice, err := h.client.GetInvoice(context.Background(), 623096)
 	if err != nil {
 		return err
 	}
