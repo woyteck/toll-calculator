@@ -7,7 +7,7 @@ import (
 )
 
 const kafkaTopic = "obudata"
-const aggregatorEndpointHTTP = "http://127.0.0.1:3000/aggregate"
+const aggregatorEndpointHTTP = "http://127.0.0.1:3000"
 const aggregatorEndpointGRPC = "127.0.0.1:3001"
 
 func main() {
@@ -19,13 +19,13 @@ func main() {
 	svc = NewCalculdatorService()
 	svc = NewLogMiddleware(svc)
 
-	// httpClient := client.NewHTTPClient(aggregatorEndpointHTTP)
-	grpcClient, err := client.NewGRPCClient(aggregatorEndpointGRPC)
+	httpClient := client.NewHTTPClient(aggregatorEndpointHTTP)
+	// grpcClient, err := client.NewGRPCClient(aggregatorEndpointGRPC)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	kafkaConsumer, err := NewKafkaConsumer(kafkaTopic, svc, grpcClient)
+	kafkaConsumer, err := NewKafkaConsumer(kafkaTopic, svc, httpClient)
 	if err != nil {
 		log.Fatal(err)
 	}

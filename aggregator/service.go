@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-
+	"github.com/sirupsen/logrus"
 	"github.com/woyteck/toll-calculator/types"
 )
 
@@ -29,7 +28,12 @@ func NewInvoiceAggregator(store Storer) Aggregator {
 }
 
 func (i *InvoiceAggregator) AggregateDistance(distance types.Distance) error {
-	fmt.Println("processing and inserting distance in the storage:", distance)
+	// fmt.Println("processing and inserting distance in the storage:", distance)
+	logrus.WithFields(logrus.Fields{
+		"obuid":    distance.OBUID,
+		"distance": distance.Value,
+		"unix":     distance.Unix,
+	}).Info("aggregatinr distance")
 	return i.store.Insert(distance)
 }
 
