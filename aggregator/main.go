@@ -2,32 +2,49 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"strconv"
 
+	"github.com/joho/godotenv"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/woyteck/toll-calculator/types"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	httpListenAddr := flag.String("httpAddr", ":4000", "the listen address of the http transport handler server")
-	grpcListenAddr := flag.String("grpcAddr", ":4001", "the listen address of the grpc transport handler server")
-	flag.Parse()
-	store := NewMemoryStore()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	httpListenAddr := os.Getenv("AGG_HTTP_ENDPOINT")
+	grpcListenAddr := os.Getenv("AGG_GPRC_ENDPOINT")
+	store := makeStore()
+
 	svc := NewInvoiceAggregator(store)
 	svc = NewMetricsMiddleware(svc)
 	svc = NewLogMiddleware(svc)
 
 	go func() {
-		log.Fatal(makeGRPCTransport(*grpcListenAddr, svc))
+		log.Fatal(makeGRPCTransport(grpcListenAddr, svc))
 	}()
 
-	log.Fatal(makeHTTPTransport(*httpListenAddr, svc))
+	log.Fatal(makeHTTPTransport(httpListenAddr, svc))
+}
+
+func makeStore() Storer {
+	t := os.Getenv("AGG_STORE_TYPE")
+	switch t {
+	case "memory":
+		return NewMemoryStore()
+	default:
+		log.Fatalf("invalid store %s", t)
+		return nil
+	}
 }
 
 func makeGRPCTransport(listenAddr string, svc Aggregator) error {
@@ -55,6 +72,11 @@ func makeHTTPTransport(listenAddr string, svc Aggregator) error {
 
 func handleGetInvoice(svc Aggregator) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "method not supported"})
+			return
+		}
+
 		values, ok := r.URL.Query()["obu"]
 		if !ok {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "missing obuid"})
