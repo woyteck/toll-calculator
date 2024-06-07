@@ -36,17 +36,6 @@ func main() {
 	log.Fatal(makeHTTPTransport(httpListenAddr, svc))
 }
 
-func makeStore() Storer {
-	t := os.Getenv("AGG_STORE_TYPE")
-	switch t {
-	case "memory":
-		return NewMemoryStore()
-	default:
-		log.Fatalf("invalid store %s", t)
-		return nil
-	}
-}
-
 func makeGRPCTransport(listenAddr string, svc Aggregator) error {
 	fmt.Println("GRPC transport running on port", listenAddr)
 	ln, err := net.Listen("tcp", listenAddr)
@@ -67,6 +56,7 @@ func makeHTTPTransport(listenAddr string, svc Aggregator) error {
 	http.HandleFunc("/aggregate", handleAggregate(svc))
 	http.HandleFunc("/invoice", handleGetInvoice(svc))
 	http.Handle("/metrics", promhttp.Handler())
+
 	return http.ListenAndServe(listenAddr, nil)
 }
 
@@ -115,6 +105,17 @@ func handleAggregate(svc Aggregator) http.HandlerFunc {
 			writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
 			return
 		}
+	}
+}
+
+func makeStore() Storer {
+	t := os.Getenv("AGG_STORE_TYPE")
+	switch t {
+	case "memory":
+		return NewMemoryStore()
+	default:
+		log.Fatalf("invalid store %s", t)
+		return nil
 	}
 }
 
