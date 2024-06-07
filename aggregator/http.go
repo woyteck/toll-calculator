@@ -9,6 +9,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/sirupsen/logrus"
 	"github.com/woyteck/toll-calculator/types"
 )
 
@@ -37,7 +38,12 @@ func newHTTPMetricsHandler(reqName string) *HTTPMetricsHandler {
 func (h *HTTPMetricsHandler) instrument(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func(start time.Time) {
-			h.reqLatency.Observe(time.Since(start).Seconds())
+			latency := time.Since(start).Seconds()
+			logrus.WithFields(logrus.Fields{
+				"latency": latency,
+				"request": r.RequestURI,
+			}).Info()
+			h.reqLatency.Observe(latency)
 		}(time.Now())
 
 		h.reqCounter.Inc()
