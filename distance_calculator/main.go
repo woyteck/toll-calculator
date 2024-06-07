@@ -7,8 +7,8 @@ import (
 )
 
 const kafkaTopic = "obudata"
-const aggregatorEndpointHTTP = "http://127.0.0.1:3000"
-const aggregatorEndpointGRPC = "127.0.0.1:3001"
+const aggregatorEndpointHTTP = "http://127.0.0.1:4000"
+const aggregatorEndpointGRPC = "127.0.0.1:4001"
 
 func main() {
 	var (

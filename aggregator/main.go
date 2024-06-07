@@ -15,8 +15,8 @@ import (
 )
 
 func main() {
-	httpListenAddr := flag.String("httpAddr", ":3000", "the listen address of the http transport handler server")
-	grpcListenAddr := flag.String("grpcAddr", ":3001", "the listen address of the grpc transport handler server")
+	httpListenAddr := flag.String("httpAddr", ":4000", "the listen address of the http transport handler server")
+	grpcListenAddr := flag.String("grpcAddr", ":4001", "the listen address of the grpc transport handler server")
 	flag.Parse()
 	store := NewMemoryStore()
 	svc := NewInvoiceAggregator(store)
@@ -78,6 +78,11 @@ func handleGetInvoice(svc Aggregator) http.HandlerFunc {
 
 func handleAggregate(svc Aggregator) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "method not supported"})
+			return
+		}
+
 		var distance types.Distance
 		if err := json.NewDecoder(r.Body).Decode(&distance); err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
