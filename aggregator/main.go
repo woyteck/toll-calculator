@@ -52,12 +52,16 @@ func makeGRPCTransport(listenAddr string, svc Aggregator) error {
 
 func makeHTTPTransport(listenAddr string, svc Aggregator) error {
 	aggMetricHandler := newHTTPMetricsHandler("aggregate")
+	aggregateHandler := makeHTTPHandlerFunc(aggMetricHandler.instrument(handleAggregate(svc)))
+	http.HandleFunc("/aggregate", aggregateHandler)
+
 	invMetricHandler := newHTTPMetricsHandler("invoice")
-	fmt.Println("HTTP transport running on port", listenAddr)
-	http.HandleFunc("/aggregate", aggMetricHandler.instrument(handleAggregate(svc)))
-	http.HandleFunc("/invoice", invMetricHandler.instrument(handleGetInvoice(svc)))
+	invoiceHandler := makeHTTPHandlerFunc(invMetricHandler.instrument(handleGetInvoice(svc)))
+	http.HandleFunc("/invoice", invoiceHandler)
+
 	http.Handle("/metrics", promhttp.Handler())
 
+	fmt.Println("HTTP transport running on port", listenAddr)
 	return http.ListenAndServe(listenAddr, nil)
 }
 
