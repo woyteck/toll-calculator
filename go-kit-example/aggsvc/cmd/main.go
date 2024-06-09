@@ -15,7 +15,7 @@ func main() {
 	logger := log.NewLogfmtLogger(os.Stderr)
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 	logger = log.With(logger, "caller", log.DefaultCaller)
-	service := aggservice.New()
+	service := aggservice.New(logger)
 	endpoints := aggendpoint.New(service, logger)
 	httpHandler := aggtransport.NewHttpHandler(endpoints, logger)
 

@@ -2,7 +2,6 @@ package aggservice
 
 import (
 	"context"
-	"os"
 
 	"github.com/go-kit/log"
 	"github.com/woyteck/toll-calculator/types"
@@ -47,10 +46,7 @@ func (svc *BasicService) Calculate(_ context.Context, obuID int) (*types.Invoice
 	return inv, nil
 }
 
-func New() Service {
-	logger := log.NewLogfmtLogger(os.Stdout)
-	logger = log.With(logger, "service", "aggregator")
-
+func New(logger log.Logger) Service {
 	var svc Service
 	svc = newBasicService(NewMemoryStore())
 	svc = newLoggingMiddleware(logger)(svc)
