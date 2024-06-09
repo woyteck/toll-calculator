@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
+	"math/rand"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -67,6 +69,8 @@ func (dr *DataReceiver) wsReceiveLoop() {
 			log.Println("read error:", err)
 			continue
 		}
+
+		data.RequestID = rand.Intn(math.MaxInt)
 
 		if err := dr.produceData(data); err != nil {
 			fmt.Println("kafka produce error:", err)
